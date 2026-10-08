@@ -1,56 +1,92 @@
-# AI Research Agent — Project Starter
+# AI Interview Board — Project Starter
 
-One self-contained notebook: **researcher → analyst → writer**. You build
-the three agents with LangChain 1.x `create_agent` and chain them with
-LangGraph's Graph API (`StateGraph`). Finish three TODOs — write the system
-prompts (TODO #1), build the agents (TODO #2), build the pipeline (TODO #3).
+A local, multi-agent-style interview practice app. Upload a CV, complete a realistic eight-question interview, and receive a strict review with evidence-based strengths and areas to improve.
 
-## Google Colab (easiest)
+## What it does
 
-1. Open `research_agent.ipynb` in Colab.
-2. Add a secret named `OPENROUTER_API_KEY` (key icon in the left sidebar).
-3. Finish the TODOs, then `Runtime → Run all`.
+- **Reem — CV reader:** extracts the candidate's name, specialty, experience, skills, education, and projects from the CV.
+- **Noura — specialty interviewer:** asks four role-specific questions in English, tailored to the CV where possible.
+- **Mazen — HR interviewer:** asks four behavioral and motivation questions in Arabic.
+- **Lina — evaluator:** scores the written answers against clear evidence signals.
+- **Rashid — summary writer:** reports supported strengths, weaknesses, and feedback for each answer.
 
-## On your own machine
+> This project uses local rules and text signals. The agents are simulated roles; they do not call an LLM or an external AI service.
+
+## Run locally
+
+### Requirements
+
+- Node.js LTS
+- Internet access to load the PDF and Word text-extraction libraries from their CDN
+
+### VS Code (recommended)
+
+1. Download and extract this project folder.
+2. Open the `interview-board` folder in VS Code. It should contain `server.js` and the `.vscode` folder.
+3. Press `Ctrl+Shift+P`, choose **Tasks: Run Task**, then select **تشغيل المقابلة محليًا**.
+4. Open the local URL printed in the terminal. It is usually `http://127.0.0.1:4174/`.
+5. Keep the terminal open while using the app. Press `Ctrl+C` in that terminal to stop the server.
+
+### Terminal
+
+From the project folder, run:
 
 ```bash
-uv sync
-cp .env.example .env   # open .env and paste your OPENROUTER_API_KEY
-uv run jupyter lab research_agent.ipynb
+node server.js
 ```
 
-## How to submit
+The server prints the URL it selected. If port `4174` is already in use, it automatically tries the next port.
 
-1. **Fork** this repository (Fork button, top-right on GitHub).
-2. **Clone your fork**, open the notebook, and finish the three TODOs.
-3. **Commit and push** your work to your fork:
+## CV formats
+
+Supported formats: text-based PDF, DOCX, TXT, and Markdown. Scanned image PDFs are not supported because OCR is not included. PDF and Word text is extracted in the browser, then sent to the local server on `127.0.0.1` for analysis.
+
+## Local API
+
+- `GET /api/health` — check that the service is running.
+- `POST /api/cv/analyze` — analyze extracted CV text and return a candidate profile.
+- `POST /api/interviews` — create an interview session and return the first question.
+- `POST /api/interviews/:id/answers` — record and evaluate an answer, then return the next question or final report.
+
+Interview sessions are held temporarily in server memory. They are removed after the report is returned, and restarting the server clears any active sessions. No database or API key is required.
+
+## Project structure
+
+```text
+interview-board/
+├── index.html                 # User interface and browser-side CV text extraction
+├── server.js                  # Local HTTP server and API routes
+├── backend/
+│   └── agents.js              # CV analysis, question generation, evaluation, and report
+├── .vscode/
+│   └── tasks.json             # VS Code run task
+├── مقابلة.code-workspace      # VS Code workspace
+├── .gitignore
+└── README.md
+```
+
+## Publish your submission
+
+1. Create a GitHub repository or fork the project repository.
+2. Open the project folder in VS Code and use **Source Control** to review the files.
+3. Commit and push your project files:
+
    ```bash
-   git add research_agent.ipynb README.md
-   git commit -m "Finish research agent project"
+   git add README.md index.html server.js backend/agents.js .vscode
+   git commit -m "Build local multi-agent interview app"
    git push
    ```
-   Never commit your `.env` file — it holds your API key (it is already in `.gitignore`).
-4. **Tag the academy** so we can find your submission: edit the bottom of your fork's `README.md`, add this line, then commit and push again:
-   ```markdown
-   Submitted by: <your name> — academy: @SDAIAAcademy
+
+4. Add your name and tag the academy at the bottom of this README, then commit and push the change:
+
+   ```text
+   Submitted by: Your Name — academy: @SDAIAAcademy
    ```
-5. Your submission is complete when your fork's last commit contains your finished `research_agent.ipynb` and the README line above. Grading follows `EVALUATION.md`.
 
-## Structure
+## Notes
 
-```
-project_starter/
-├── research_agent.ipynb   # the whole project (helpers given, 3 TODOs inside)
-├── EVALUATION.md          # Grading rubric for the project
-├── pyproject.toml         # Dependencies (for local runs)
-├── .env.example           # Environment variable template (local runs)
-├── .gitignore             # Keeps .env and local caches out of git
-└── uv.lock                # Locked dependency versions
-```
+- Specialty questions are in English; HR questions and feedback are in Arabic.
+- The evaluation is a rules-based prototype, not a hiring decision or a substitute for a human reviewer.
+- CV data and interview answers are processed by the local server and are not sent to an external AI provider.
 
-## Quick reference
-
-```bash
-uv sync                                  # install dependencies
-uv run jupyter lab research_agent.ipynb  # open the project
-```
+Submitted by: Your Name — academy: @SDAIAAcademy
